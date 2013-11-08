@@ -173,18 +173,18 @@ function cutstr($string, $length, $dot = ' ...') {
 	if($pos !== false) $strcut = substr($strcut,0,$pos);
 	return $strcut.$dot;
 }
-function update_liked_tieba($uid, $ignore_error = false){
+function update_liked_tieba($uid, $ignore_error = false, $allow_deletion = true){
 	$date = date('Ymd', TIMESTAMP + 900);
 	$cookie = get_cookie($uid);
 	if(!$cookie){
 		if($ignore_error) return;
-		showmessage('请先填写 Cookie 信息再更新', './#setting');
+		showmessage('请先填写 Cookie 信息再更新', './#baidu_bind');
 	}
 	$liked_tieba = get_liked_tieba($cookie);
 	$insert = $deleted = 0;
 	if(!$liked_tieba){
 		if($ignore_error) return;
-		showmessage('无法获取喜欢的贴吧，请更新 Cookie 信息', './#setting');
+		showmessage('无法获取喜欢的贴吧，请更新 Cookie 信息', './#baidu_bind');
 	}
 	$my_tieba = array();
 	$query = DB::query("SELECT name, fid, tid FROM my_tieba WHERE uid='{$uid}'");
@@ -212,7 +212,7 @@ function update_liked_tieba($uid, $ignore_error = false){
 		}
 	}
 	DB::query("INSERT IGNORE INTO sign_log (tid, uid) SELECT tid, uid FROM my_tieba");
-	if($my_tieba){
+	if($my_tieba && $allow_deletion){
 		$tieba_ids = array();
 		foreach($my_tieba as $tieba){
 			$tieba_ids[] = $tieba['tid'];
@@ -264,24 +264,6 @@ function wrap_text($str) {
 	$str = str_replace(' ', '', $str);
     return trim($str);
 }
-function curl_get($url, $uid, $mobile_ua = false, $postdata = ''){
-	$ch = curl_init($url);
-	if ($mobile_ua){
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: Mozilla/5.0 (Linux; U; Android 4.1.2; zh-cn; MB526 Build/JZO54K) AppleWebKit/530.17 (KHTML, like Gecko) FlyFlow/2.4 Version/4.0 Mobile Safari/530.17 baidubrowser/042_1.8.4.2_diordna_458_084/alorotoM_61_2.1.4_625BM/1200a/39668C8F77034455D4DED02169F3F7C7%7C132773740707453/1'));
-    } else {
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent:Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36', 'Connection:keep-alive', 'Referer:http://wapp.baidu.com/'));
-    }
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_COOKIE, get_cookie($uid));
-	if($postdata) curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-	$get_url = curl_exec($ch);
-	if($get_url !== false){
-		$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if ($statusCode >= 500) return false;
-  	}
-    curl_close($ch);
-    return $get_url;
-}
 function get_cookie($uid){
 	static $cookie = array();
 	if($cookie[$uid]) return $cookie[$uid];
@@ -314,7 +296,6 @@ function send_mail($address, $subject, $message, $delay = true){
 		saveSetting('mail_queue', 1);
 		return true;
 	}else{
-		require_once SYSTEM_ROOT.'./class/mail.php';
 		$mail = new mail_content();
 		$mail->address = $address;
 		$mail->subject = $subject;
@@ -356,4 +337,16 @@ function verify_cookie($cookie){
 	curl_close($ch);
 	$tbs = json_decode($tbs_json, 1);
 	return $tbs['is_login'];
+}
+function get_baidu_userinfo($uid){
+	$cookie = get_cookie($uid);
+	if(!$cookie) return array('no' => 4);
+	$tbs_url = 'http://tieba.baidu.com/f/user/json_userinfo';
+	$ch = curl_init($tbs_url);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array('Referer: http://tieba.baidu.com/'));
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+	$tbs_json = curl_exec($ch);
+	curl_close($ch);
+	return json_decode($tbs_json, true);
 }

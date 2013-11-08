@@ -43,9 +43,10 @@ input[type=radio]:checked::after { content: ''; display: block; position: relati
 input[type=checkbox]:checked::after { content: url(checkmark.png); display: block; position: absolute; top: -6px; left: -5px; }
 input[type=checkbox]:focus { outline: none; border-color: #4d90fe; }
 textarea { min-height: 120px; #height: 120px; padding: 5px; }
-input[type=submit], button, .btn { background: #2244ff; border: none; color: #fff; padding: 0 10px 0 15px; height: 30px; line-height: 30px; letter-spacing: 5px; -webkit-appearance: none; -moz-appearance: none; appearance: none; display: inline-block; }
+input[type=submit], button, .btn { cursor: pointer; background: #2244ff; border: none; color: #fff; padding: 0 10px 0 15px; height: 30px; line-height: 30px; letter-spacing: 5px; -webkit-appearance: none; -moz-appearance: none; appearance: none; display: inline-block; }
 input[type=submit]:hover, button:hover, .btn:hover { background: #5577ff; text-decoration: none; }
 input[type=email].form-error, input[type=password].form-error, input[type=text].form-error, input[type=url].form-error { border: 1px solid #dd4b39; }
+.btn:active { color: #fff; }
 
 .float-left { float: left; }
 .float-right { float: right; }
@@ -60,9 +61,9 @@ input[type=email].form-error, input[type=password].form-error, input[type=text].
 .btns .float-left { margin-left: -10px; }
 .center-box { position: relative; top: 125px; width: 320px; margin: 0 auto; background: #f5f5f5; padding: 10px 15px; box-shadow: 0 0 5px #ababab; }
 .main-box { position: relative; top: 35px; width: 80%; margin: 0 auto; background: #f5f5f5; padding: 10px 15px; box-shadow: 0 0 5px #ababab; }
-.sidebar { float: left; width: 20%; padding: 0 0 10px; border-right: 1px solid #dedede; margin: 0 0 -10px -15px }
+.sidebar { float: left; width: 250px; padding: 0 0 10px; border-right: 1px solid #dedede; margin: 0 0 -10px -15px; }
 .sidebar p { text-align: center; margin-bottom: 0; padding-bottom: .75em; border-bottom: 1px solid #DEDEDE; }
-.main-content { margin: 0 0 -10px -1px; border-left: 1px solid #dedede; padding: 10px 0 10px 10px; float: left; width: 80%; }
+.main-content { margin: 0 0 -10px 235px; border-left: 1px solid #dedede; padding: 10px 0 10px 10px; }
 .menu { margin: 0; }
 .menu li { border-top: 1px solid #dedede; margin: 0; padding: 0; }
 .menu li:first-child { border-top: none; }
@@ -85,6 +86,9 @@ input[type=email].form-error, input[type=password].form-error, input[type=text].
 .main-content table tbody tr { background: #efefef; }
 .main-content table tbody tr:nth-child(odd) { background: #fafafa; }
 .main-content input[type=text], .main-content input[type=password] { width: 300px; }
+.baidu_account img { padding: 5px; border: 1px solid #dedede; height: 96px; margin-right: 15px; }
+.baidu_account p { line-height: 36px; margin-bottom: 0; }
+.baidu_account { margin: 5px 15px 15px; }
 .fwin { animation: showfwin .3s; -webkit-animation: showfwin .3s; -moz-animation: showfwin .3s; position: absolute; position: fixed; width: 400px; z-index: 50; background-color: #f5f5f5; border: 1px solid #cdcdcd; border-radius: 5px; padding: 5px; box-shadow: #9c9c9c 0 0 100px; }
 .fwin .close { display: block; overflow: hidden; position: relative; float: right; right: 3px; top: 3px; text-indent: -999px; width: 0; height: 0; background: url(close.gif); padding: 10px; cursor: pointer; }
 .fwin .close:hover { background-position: 0 100%; }
@@ -109,7 +113,7 @@ input[type=email].form-error, input[type=password].form-error, input[type=text].
 	.copyright { margin-top: 22px; font-size: 11px; }
 	#page_login .copyright { margin-top: 100px; }
 	.sidebar { display: none; float: none; width: auto; padding: 0 0 10px; margin: 0 -5px -10px; border: none; }
-	.main-content { border-left: none; border-top: 1px solid #dedede; padding: 10px 5px; margin: -1px 0 0 -5px; float: none; width: auto; }
+	.main-content { border-left: none; border-top: 1px solid #dedede; padding: 10px 5px; margin: -1px 0 0 -5px; float: none; width: auto; margin-left: -1px; }
 	.reload { right: 45px; }
 	.menubtn { display: block; }
 	.main-content input[type=text], .main-content input[type=password] { width: 90%; }

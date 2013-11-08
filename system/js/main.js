@@ -1,11 +1,12 @@
 (function(){
 	var stat = [];
+	var redirected = false;
 	stat[0] = stat[1] = stat[2] = stat[3] = stat[4] = 0;
 	$('#menu_loved_tb').click(function (){
 		if($('#menu_loved_tb').hasClass('selected')) return;
 		$('.menu li.selected').removeClass('selected');
 		$('#menu_loved_tb').addClass('selected');
-		$('.main-content div').addClass('hidden');
+		$('.main-content>div').addClass('hidden');
 		$('#content-loved-tb').removeClass('hidden');
 		load_loved_tieba();
 		if(mobile) $('.sidebar').fadeOut();
@@ -14,7 +15,7 @@
 		if($('#menu_sign_log').hasClass('selected')) return;
 		$('.menu li.selected').removeClass('selected');
 		$('#menu_sign_log').addClass('selected');
-		$('.main-content div').addClass('hidden');
+		$('.main-content>div').addClass('hidden');
 		$('#content-sign-log').removeClass('hidden');
 		load_sign_log();
 		if(mobile) $('.sidebar').fadeOut();
@@ -23,10 +24,31 @@
 		if($('#menu_config').hasClass('selected')) return;
 		$('.menu li.selected').removeClass('selected');
 		$('#menu_config').addClass('selected');
-		$('.main-content div').addClass('hidden');
+		$('.main-content>div').addClass('hidden');
 		$('#content-config').removeClass('hidden');
 		load_setting();
 		if(mobile) $('.sidebar').fadeOut();
+	});
+	$('#menu_guide').click(function (){
+		if($('#menu_guide').hasClass('selected')) return;
+		$('.menu li.selected').removeClass('selected');
+		$('#menu_guide').addClass('selected');
+		$('.main-content>div').addClass('hidden');
+		$('#content-guide').removeClass('hidden');
+		if(mobile) $('.sidebar').fadeOut();
+		hideloading();
+	});
+	$('#menu_baidu_bind').click(function (){
+		if($('#menu_baidu_bind').hasClass('selected')) return;
+		$('.menu li.selected').removeClass('selected');
+		$('#menu_baidu_bind').addClass('selected');
+		$('.main-content>div').addClass('hidden');
+		$('#content-baidu_bind').removeClass('hidden');
+		load_baidu_bind();
+		if(mobile) $('.sidebar').fadeOut();
+	});
+	$('#show_cookie_setting').click(function (){
+		$('.tab-cookie').toggleClass('hidden');
 	});
 	$('.reload').click(function (){
 		if($('#menu_loved_tb').hasClass('selected')) load_loved_tieba();
@@ -53,12 +75,16 @@
 	function load_sign_log(){
 		showloading();
 		$.getJSON("ajax.php?v=sign-log", function(result){
+			if(result.count == 0 && !redirected){
+				redirected = true;
+				$('#menu_guide').click();
+			}
 			show_sign_log(result);
 		}).fail(function() { createWindow().setTitle('系统错误').setContent('发生未知错误: 无法获取签到报告').addButton('确定', function(){ location.reload(); }).append(); }).always(function(){ hideloading(); });
 	}
 	function load_sign_history(date){
 		$('.menu li.selected').removeClass('selected');
-		$('.main-content div').addClass('hidden');
+		$('.main-content>div').addClass('hidden');
 		$('#content-sign-log').removeClass('hidden');
 		showloading();
 		$.getJSON("ajax.php?v=sign-history&date="+date, function(result){
@@ -91,7 +117,6 @@
 		showloading();
 		$.getJSON("ajax.php?v=get-setting", function(result){
 			if(!result) return;
-			$('#bdbowser').attr('checked', result.use_bdbowser == "1");
 			$('#error_mail').attr('checked', result.error_mail == "1");
 			$('#send_mail').attr('checked', result.send_mail == "1");
 			$('#zhidao_sign').attr('checked', result.zhidao_sign == "1");
@@ -101,20 +126,25 @@
 			$('#send_mail').removeAttr('disabled');
 			$('#zhidao_sign').removeAttr('disabled');
 			$('#wenku_sign').removeAttr('disabled');
-			if(result.sign_method == 2){
-				$('#sign_method_1').attr('checked', false);
-				$('#sign_method_2').attr('checked', true);
-				$('#sign_method_3').attr('checked', false);
-			}else if(result.sign_method == 3){
-				$('#sign_method_1').attr('checked', false);
-				$('#sign_method_2').attr('checked', false);
-				$('#sign_method_3').attr('checked', true);
-			}else{
-				$('#sign_method_1').attr('checked', true);
-				$('#sign_method_2').attr('checked', false);
-				$('#sign_method_3').attr('checked', false);
-			}
 		}).fail(function() { createWindow().setTitle('系统错误').setContent('发生未知错误: 无法获取系统设置').addButton('确定', function(){ location.reload(); }).append(); }).always(function(){ hideloading(); });
+	}
+	function load_baidu_bind(){
+		showloading();
+		$.getJSON("ajax.php?v=get-bind-status", function(result){
+			if(!result) return;
+			$('#content-baidu_bind .tab').addClass('hidden');
+			if(result.no == 0){
+				$('#content-baidu_bind .tab-binded').removeClass('hidden');
+				$('.tab-binded div').removeClass('hidden');
+				$('.tab-binded div').html('');
+				$('.tab-binded div').append('<img src="http://tb.himg.baidu.com/sys/portrait/item/' + result.data.user_portrait + '" class="float-left">');
+				$('.tab-binded div').append('<p>百度通行证：<a href="http://tieba.baidu.com/home/main?un=' + result.data.user_name_url + '" target="_blank">' + result.data.user_name_show + '</a></p>');
+				$('.tab-binded div').append('<p>安全手机：' + result.data.mobilephone + '</p>');
+				$('.tab-binded div').append('<p>安全邮箱：' + result.data.email + '</p>');
+			}else{
+				$('#content-baidu_bind .tab-bind').removeClass('hidden');
+			}
+		}).fail(function() { createWindow().setTitle('系统错误').setContent('发生未知错误: 无法获取绑定状态').addButton('确定', function(){ location.reload(); }).append(); }).always(function(){ hideloading(); });
 	}
 	function _status(status){
 		if(typeof status == 'undefined') status = 0;
@@ -144,10 +174,14 @@
 	}
 	function parse_hash(){
 		var hash = location.hash.substring(1);
-		if(hash == "loved"){
+		if(hash == "guide"){
+			$('#menu_guide').click();
+		}else if(hash == "loved"){
 			$('#menu_loved_tb').click();
 		}else if(hash == "signlog"){
 			$('#menu_sign_log').click();
+		}else if(hash == "baidu_bind"){
+			$('#menu_baidu_bind').click();
 		}else if(hash == "setting"){
 			$('#menu_config').click();
 		}else if(hash.split('-')[0] == "history"){
@@ -164,6 +198,11 @@
 	function hideloading(){
 		$('.loading-icon').addClass('h');
 	}
+	$('#unbind_btn').click(function(){
+		var link = this.href;
+		createWindow().setTitle('解除绑定').setContent('确认要解除绑定吗？<br>(解除绑定后自动签到将停止，所有记录将被清除)').addButton('确定', function(){ msg_redirect_action(link); }).addCloseButton('取消').append();
+		return false;
+	});
 	$('.menu_switch_user a').click(function(){
 		var link = this.href;
 		createWindow().setTitle('切换账号').setContent('确认要切换登陆账号吗？').addButton('确定', function(){ msg_redirect_action(link); }).addCloseButton('取消').append();
